@@ -1,2 +1,2 @@
 # EmberBot
-A bot written in python to be used in Discord servers.
+Emberbot is a Discord bot written in python.
