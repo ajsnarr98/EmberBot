@@ -1,7 +1,5 @@
 import cacher
 import message_parser
-from utils import RestartRequired
-
 
 class Command(object):
     """ Used when defining a command 

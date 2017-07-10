@@ -1,3 +1,7 @@
+if __name__ == '__main__':
+    import dependencies
+    dependencies.install() # attempt to isntall any missing dependencies
+
 import asyncio
 import logging
 import os
@@ -20,8 +24,6 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
-# define parser variable; initialize as MessageParser
-parser = None
 
 class DiscordBot(discord.Client):
 
