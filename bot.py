@@ -11,7 +11,6 @@ import accounts
 import message_parser
 import secret
 import self_updater
-from utils import RestartRequired
 
 
 # set up logger
@@ -39,7 +38,7 @@ class DiscordBot(discord.Client):
         if message.author != self.user: # do not want bot to reply to self
             await self.parser.parse_and_react(message)
 
-    def restart(self):
+    def _restart(self):
         """ Restarts after event loop has ended, and checks for updates """
         seconds_before_restart = 5
 
@@ -48,7 +47,7 @@ class DiscordBot(discord.Client):
 
     def run(self, *args, **kwargs):
         """ 
-        Can call commands.restart() to stop event loop """
+        Can call commands._restart() to stop event loop """
 
         restart = True
 
@@ -75,7 +74,7 @@ class DiscordBot(discord.Client):
         finally:
             self.loop.close()
             if restart:
-                self.restart()
+                self._restart()
 
 
 if __name__ == '__main__':

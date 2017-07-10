@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 import git
 
@@ -11,7 +12,6 @@ def restart(logger, seconds_before_restart=5):
     """ Waits a determined amount of time and then restarts
         this program.
     """
-
     pre_wait_message = 'event loop has stopped... waiting {sec} seconds before restart'
     restarting_message = 'restarting bot...'
 
