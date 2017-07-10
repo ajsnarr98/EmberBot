@@ -10,6 +10,7 @@ import discord
 import accounts
 import message_parser
 import secret
+import self_updater
 from utils import RestartRequired
 
 
@@ -39,18 +40,11 @@ class DiscordBot(discord.Client):
             await self.parser.parse_and_react(message)
 
     def restart(self):
-        """ Restarts after event loop has ended """
+        """ Restarts after event loop has ended, and checks for updates """
         seconds_before_restart = 5
 
-        pre_wait_message = 'event loop has stopped... waiting {sec} seconds before restart'
-        restarting_message = 'restarting bot...'
+        self_updater.restart(logger, seconds_before_restart=seconds_before_restart)
 
-        logger.debug(pre_wait_message.format(sec=seconds_before_restart))
-        time.sleep(seconds_before_restart)
-        logger.debug(restarting_message)
-
-        python = sys.executable
-        os.execl(python, python, *sys.argv)
 
     def run(self, *args, **kwargs):
         """ 
