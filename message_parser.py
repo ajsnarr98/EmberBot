@@ -1,3 +1,5 @@
+import asyncio
+
 import cacher
 from commands import Command, AutoResponse
 import commands
@@ -86,13 +88,14 @@ class MessageParser(object):
         self.client = client
         self.logger = logger
 
-    async def parse_and_react(self, message):
+    @asyncio.coroutine
+    def parse_and_react(self, message):
         """ Runs the respective command or function for each respective message """
         parsed = ParsedMessage(message)
 
         if parsed.is_command:
             if (parsed.parsed_content[0]) == 'help' or parsed.parsed_content[0] == '':
-                await command_dict['help']._function(parsed, self.client, self.logger,
+                yield from command_dict['help']._function(parsed, self.client, self.logger,
                     command_dict)
             else:
                 cmd = self.get_command(parsed.parsed_content)
@@ -101,15 +104,15 @@ class MessageParser(object):
 
                     
                     if cmd._incl_command_dict and cmd._incl_auto_response_functions:
-                        await function(parsed, self.client, self.logger,
+                        yield from function(parsed, self.client, self.logger,
                             command_dict, auto_response_functions)
                     elif cmd._incl_command_dict:
-                        await function(parsed, self.client, self.logger, command_dict)
+                        yield from function(parsed, self.client, self.logger, command_dict)
                     elif cmd._incl_auto_response_functions:
-                        await function(parsed, self.client, self.logger,
+                        yield from function(parsed, self.client, self.logger,
                             auto_response_functions)
                     else:
-                        await function(parsed, self.client, self.logger)
+                        yield from function(parsed, self.client, self.logger)
 
         else:
             # For reactions to messages that do not start with the command prefix
@@ -126,7 +129,7 @@ class MessageParser(object):
                     is_enabled = True
                 
                 if is_enabled:
-                    await function(parsed, self.client, self.logger)
+                    yield from function(parsed, self.client, self.logger)
 
 
 

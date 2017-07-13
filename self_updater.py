@@ -5,12 +5,19 @@ import time
 import git
 
 def check_for_updates():
-    """ Clones master branch of repo from git """
-    pass
+    """ Pulls master branch of repo from git
+        
+        NOTE: Expects git to be initialized and
+              current working dir to be in a cloned
+              git repo.
+    """
+
+    git_cmd = git.cmd.Git(working_dir=os.getcwd())
+    git_cmd.pull()
 
 def restart(logger, seconds_before_restart=5):
     """ Waits a determined amount of time and then restarts
-        this program.
+        this program.y
     """
     pre_wait_message = 'event loop has stopped... waiting {sec} seconds before restart'
     restarting_message = 'restarting bot...'

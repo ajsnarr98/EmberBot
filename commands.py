@@ -1,3 +1,5 @@
+import asyncio
+
 import cacher
 import message_parser
 
@@ -65,7 +67,8 @@ AND MUST return:
 
 # ------------- COMMAND FUNCTIONS ------------------------
 
-async def do_nothing(message, client, logger):
+@asyncio.coroutine
+def do_nothing(message, client, logger):
     pass
     # call help function
     # message.parsed_content = ['help'] + message.parsed_content
@@ -94,7 +97,8 @@ def list_sub_commands(sub_dict, cmd_description, base_cmd_name):
     return list_str
 
 
-async def help(message, client, logger, command_dict):
+@asyncio.coroutine
+def help(message, client, logger, command_dict):
     """ Lists all commands, along with descriptions.
 
         Will list a command's subcommands if that command
@@ -195,12 +199,13 @@ async def help(message, client, logger, command_dict):
         help_info += list_sub_commands(sub_dict, cmd_description, base_cmd_name)
 
     # --------- Print help string ------------
-    await client.send_message(
+    yield from client.send_message(
         message.mes.channel,
         help_info)
 
 
-async def options(message, client, logger, auto_response_functions):
+@asyncio.coroutine
+def options(message, client, logger, auto_response_functions):
     """ Used for listing enabled/disabled auto-response functions
 
         Loads enabled/disabled values (bool objects) by accessing the cache
@@ -219,7 +224,7 @@ async def options(message, client, logger, auto_response_functions):
         else:
             enabled_str = 'disabled'
 
-        await client.send_message(
+        yield from client.send_message(
             message.mes.channel,
             auto_fucntion_str.format(
                 name=auto_function._function.__name__,
@@ -240,7 +245,8 @@ def update_cache_auto_rsp(auto_response_functions):
                 True)
 
 
-async def options_enable(message, client, logger, auto_response_functions):
+@asyncio.coroutine
+def options_enable(message, client, logger, auto_response_functions):
     """ Used for enabling auto-response functions
 
         Stores enabled/disabled values as bool objects that are
@@ -262,21 +268,22 @@ async def options_enable(message, client, logger, auto_response_functions):
         if cacher.get(key) != None: # if key is valid auto-response function
             #                        (works because of call to update_cache_auto_rsp)
             cacher.store(key, True)
-            await client.send_message(
+            yield from client.send_message(
                 message.mes.channel,
                 function_name + ' has been enabled')
         else:
-            await client.send_message(
+            yield from client.send_message(
                 message.mes.channel,
                 function_name + ' could not be found')
     else:
-        await client.send_message(
+        yield from client.send_message(
             message.mes.channel,
             'Please give a valid option (\"options enable <option>\")')
 
 
 
-async def options_disable(message, client, logger, auto_response_functions):
+@asyncio.coroutine
+def options_disable(message, client, logger, auto_response_functions):
     """ Used for disabling auto-response functions
 
         Stores enabled/disabled values as bool objects that are
@@ -298,41 +305,44 @@ async def options_disable(message, client, logger, auto_response_functions):
         if cacher.get(key) != None: # if key is valid auto-response function
             #                        (works because of call to update_cache_auto_rsp)
             cacher.store(key, False)
-            await client.send_message(
+            yield from client.send_message(
                 message.mes.channel,
                 function_name + ' has been disabled')
         else:
-            await client.send_message(
+            yield from client.send_message(
                 message.mes.channel,
                 function_name + ' could not be found')
     else:
-        await client.send_message(
+        yield from client.send_message(
             message.mes.channel,
             'Please give a valid option (\"options disable <option>\")')
 
         
-async def restart(message, client, logger):
+@asyncio.coroutine
+def restart(message, client, logger):
     """ Stops event loop and client by raising a RestartRequired exeption
 
         After the event loop ends, code in bot.py will restart the
         script (useful after an update for example)
     """
     logger.debug('attempting restart')
-    await client.logout()
+    yield from client.logout()
 
 # ------------- AUTO-RESPONSE FUNCTIONS ------------------------
 
-async def help_incorrect(message, client, logger):
+@asyncio.coroutine
+def help_incorrect(message, client, logger):
     """ For when someone types 'help' without the command prefix """
     if message.mes.content.lower() == 'help':
         fmt = 'Did you mean \"{0}help\" ?'
-        await client.send_message(
+        yield from client.send_message(
             message.mes.channel,
             fmt.format(message_parser.commandPrefix))
 
     return message.mes.content.lower() == 'help'
 
-async def multi_account_mention(message, client, logger):
+@asyncio.coroutine
+def multi_account_mention(message, client, logger):
     """ A convenience function for users who have two accounts.
         If a user is @mentioned, and has two or more accounts,
         all his/her accounts will be @mentioned.
@@ -349,7 +359,7 @@ async def multi_account_mention(message, client, logger):
                 output += mention_str.format(id=account_id) + ' '
 
     if output != '':
-        await client.send_message(
+        yield from client.send_message(
             message.mes.channel,
             output)
 

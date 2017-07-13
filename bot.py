@@ -31,19 +31,22 @@ class DiscordBot(discord.Client):
         super().__init__(*args, loop=None, **options)
         self.parser = message_parser.MessageParser(self, logger)
 
-    async def on_ready(self):
+    @asyncio.coroutine
+    def on_ready(self):
         print('Connected!')
         print('Username: ' + self.user.name)
         print('ID: ' + self.user.id)
 
-    async def on_message(self, message):
+    @asyncio.coroutine
+    def on_message(self, message):
         if message.author != self.user: # do not want bot to reply to self
-            await self.parser.parse_and_react(message)
+            yield from self.parser.parse_and_react(message)
 
     def _restart(self):
         """ Restarts after event loop has ended, and checks for updates """
         seconds_before_restart = 5
 
+        self_updater.check_for_updates()
         self_updater.restart(logger, seconds_before_restart=seconds_before_restart)
 
 
