@@ -1,6 +1,6 @@
 import pip
 
-pipDependencyFilename = 'pip_dependencies'
+pipDependencyFilename = 'pip_dependencies.txt'
 
 def install():
     """ Installs any missing dependencies using pip """

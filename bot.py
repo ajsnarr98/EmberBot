@@ -11,7 +11,6 @@ import traceback
 
 import discord
 
-import accounts
 import message_parser
 import secret
 import self_updater

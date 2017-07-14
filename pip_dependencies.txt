@@ -1,2 +1,2 @@
 GitPython
-discord.py[voice]
+discord.py
