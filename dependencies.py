@@ -1,6 +1,10 @@
+import os
 import pip
 
 pipDependencyFilename = 'pip_dependencies.txt'
+
+working_dir = os.path.dirname(os.path.abspath(__file__))
+pipDependencyFilename = os.path.join(working_dir, pipDependencyFilename)
 
 def install():
     """ Installs any missing dependencies using pip """

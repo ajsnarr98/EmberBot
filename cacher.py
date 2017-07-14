@@ -1,6 +1,10 @@
 import pickle
+import os
 
 cachePath = 'data/cache.pkl'
+
+working_dir = os.path.dirname(os.path.abspath(__file__))
+cachePath = os.path.join(working_dir, cachePath)
 
 def get(key: str):
     """ Gets object related to key str in cache dict.

@@ -12,7 +12,9 @@ def check_for_updates():
               git repo.
     """
 
-    git_cmd = git.cmd.Git(working_dir=os.getcwd())
+    working_dir = os.path.dirname(os.path.abspath(__file__))
+
+    git_cmd = git.cmd.Git(working_dir=working_dir)
     git_cmd.pull()
 
 def restart(logger, seconds_before_restart=5):
