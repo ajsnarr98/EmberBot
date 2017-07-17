@@ -7,7 +7,7 @@ import commands
 commandPrefix = ':'
 
 command_dict = {
-            'help' : Command(commands.help, 'Lists commands', incl_command_dict=True),
+            #'help' : Command(commands.help, 'Lists commands', incl_command_dict=True),
             'options' : Command(commands.options,
                 'Lists options. Can also be used in format: ' + 
                 '\"options [enable/disable] <option>\" See "help ' +
@@ -20,8 +20,8 @@ command_dict = {
                 'disable' : Command(commands.options_disable,
                     '\"options disable <option>\"',
                     incl_auto_response_functions=True)
-                }),
-            'restart' : Command(commands.restart, 'Restarts the bot')
+                })
+            #'restart' : Command(commands.restart, 'Restarts the bot')
         }
 
 auto_response_functions = [
@@ -95,8 +95,9 @@ class MessageParser(object):
 
         if parsed.is_command:
             if (parsed.parsed_content[0]) == 'help' or parsed.parsed_content[0] == '':
-                yield from command_dict['help']._function(parsed, self.client, self.logger,
-                    command_dict)
+                # yield from command_dict['help']._function(parsed, self.client, self.logger,
+                #     command_dict)
+                pass
             else:
                 cmd = self.get_command(parsed.parsed_content)
                 if cmd and cmd._function:
