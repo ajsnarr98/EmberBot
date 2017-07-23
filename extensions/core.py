@@ -99,8 +99,8 @@ class Core():
             if ctx.message.channel.is_private:
                 channel = ctx.message.channel
             else:
-                channel = ctx.message.author
-            
+                channel = yield from self.bot.start_private_message(ctx.message.author)
+
             paginator = commands.Paginator()
             paginator.add_line(filename)
             paginator.close_page()
@@ -190,7 +190,7 @@ class AutoResponse(object):
         callback : coroutine
             The coroutine that is executed when the auto-response is enabled.
             This coroutine must take in the args: (bot, message) and must
-            return either of those args do not meet the function's conditions.
+            return if either of those args do not meet the function's conditions.
         description : str
             The description for this auto-response.
         default_enabled: bool
@@ -241,6 +241,7 @@ class AutoResponse(object):
                 self._enabled = this_json.get('enabled', default_enabled)
                 auto_rsp_json[self.name] = self.json_dict
             else:
+                self._enabled = default_enabled
                 auto_rsp_json[self.name] = self.json_dict
         self.data_man.save_json(auto_rsp_json, AutoResponse.saveFile)
 
@@ -288,10 +289,12 @@ def auto_response(**attrs):
         description = attrs.get('description', None)
         if description is not None:
             description = inspect.cleandoc(description)
+            description = description.replace('\n', ' ') # remove all newline chars
         else:
             description = inspect.getdoc(func)
             if isinstance(description, bytes):
                 description = description.decode('utf-8')
+            description = description.replace('\n', ' ') # remove all newline chars
 
         return AutoResponse(func, description, **attrs)
 
