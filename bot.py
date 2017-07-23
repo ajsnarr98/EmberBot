@@ -101,8 +101,9 @@ class DiscordBot(commands.Bot):
             for channel in server.channels:
                 if done_one_channel:
                     break
-                yield from self.send_message(channel, *args, **kwargs)
-                done_one_channel = True
+                if channel.type != discord.ChannelType.voice:
+                    yield from self.send_message(channel, *args, **kwargs)
+                    done_one_channel = True
 
     @asyncio.coroutine
     def process_auto_responses(self, message):
