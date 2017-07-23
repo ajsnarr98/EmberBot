@@ -42,7 +42,7 @@ class Convenience(object):
 
             if output != '':
                 yield from bot.send_message(
-                    message.mes.channel,
+                    message.channel,
                     output)
         else:
             accounts_info = {'description' :
