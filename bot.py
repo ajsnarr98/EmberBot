@@ -118,6 +118,19 @@ class DiscordBot(commands.Bot):
         yield from self.process_commands(message)
         yield from self.process_auto_responses(message)
 
+    @asyncio.coroutine
+    def on_command_error(self, exception, context):
+        """ Logs and ignores errors in commands, unless that exception was from
+            entering an invalid command, in which case this instead tells the
+            user that they gave an invalid command.
+        """
+        if type(exception) == commands.errors.CommandNotFound:
+            yield from self.send_message(context.message.channel, str(exception))
+        else:
+            logger.error('Ignoring exception in command {}'.format(context.command))
+            print('Ignoring exception in command {}'.format(context.command), file=sys.stderr)
+            traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
+
     def _restart(self):
         """ Restarts after event loop has ended, and checks for updates """
         seconds_before_restart = 5
