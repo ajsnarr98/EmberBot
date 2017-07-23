@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import random
+import requests
 
 import discord
 from discord.ext import commands
@@ -65,6 +66,17 @@ class Fun():
             random.choice(response_list), random.choice(response_emoji_list))
 
         yield from self.bot.say(response)
+
+    @commands.command(alliases=['chuck'])
+    @asyncio.coroutine
+    def chucknorris(self):
+        """ Want to know some interesting Chuck Norris facts? """
+        joke_msg = '[**Chuck**] {joke}'
+
+        chuckPull = requests.get('http://api.icndb.com/jokes/random')
+        if chuckPull and chuckPull.status_code  == 200:
+            joke = chuckPull.json()['value']['joke']
+            yield from self.bot.say(joke_msg.format(joke=joke))
 
 def setup(bot):
     bot.add_cog(Fun(bot))
