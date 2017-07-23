@@ -91,14 +91,25 @@ class DiscordBot(commands.Bot):
     def say_in_all(self, *args, **kwargs):
         """ A helper function that is equivalent to doing
 
-        .. code-block:: python
-    
-            for channel in <one channel on every server>:
-                self.send_message(channel, *args, **kwargs)
+            .. code-block:: python
+        
+                for channel in <one channel on every server>:
+                    self.send_message(channel, *args, **kwargs)
+
+            Has a preference towards a text channel called 'general',
+            where letter case does not matter.
 
         """
         for server in self.servers:
             done_one_channel = False
+            # look for text channel with name 'general'
+            for channel in server.channels:
+                if done_one_channel:
+                    break
+                if channel.type != discord.ChannelType.voice and channel.name.lower() == 'general':
+                    yield from self.send_message(channel, *args, **kwargs)
+                    done_one_channel = True
+            # look for any other text channel
             for channel in server.channels:
                 if done_one_channel:
                     break
