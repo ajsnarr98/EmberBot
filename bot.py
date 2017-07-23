@@ -51,6 +51,7 @@ class DiscordBot(commands.Bot):
         
         self.load_extension('extensions.core')
         self.load_extension('extensions.convenience')
+        self.load_extension('extensions.fun')
 
     def add_auto_response(self, auto_response):
         """Adds a :class:`extensions.core.AutoResponse` into the internal list
@@ -130,6 +131,9 @@ class DiscordBot(commands.Bot):
         """
         if type(exception) == commands.errors.CommandNotFound:
             yield from self.send_message(context.message.channel, str(exception))
+        elif type(exception) == commands.errors.MissingRequiredArgument:
+            yield from self.send_message(context.message.channel,
+                'Missing required argument. Please see \'help\'.')
         else:
             logger.error('Ignoring exception in command {}'.format(context.command))
             print('Ignoring exception in command {}'.format(context.command), file=sys.stderr)

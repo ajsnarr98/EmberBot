@@ -7,4 +7,4 @@ A module holding commands and auto-response functions
 for a discord bot.
 """
 
-__all__ = ['core', 'data', 'convenience']
+__all__ = ['core', 'data', 'convenience', 'fun']

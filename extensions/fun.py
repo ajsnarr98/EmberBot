@@ -1,0 +1,56 @@
+import asyncio
+import logging
+import random
+
+import discord
+from discord.ext import commands
+
+class Fun():
+    """ Filled with fun commands for the bot. """
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.data_man = bot.data_man
+        self.logger = logging.getLogger('discord')
+
+    @commands.command(name='8ball')
+    @asyncio.coroutine
+    def eight_ball(self, message : str):
+        """ Usage: '8ball <question>'
+
+            Gives a random 8ball response to the provided question.
+        """
+        response_emoji_list = [':blush:',
+                               ':smirk:',
+                               ':ok_hand:',
+                               ':thinking_face:',
+                               ':rolling_eyes:']
+
+        response_list = ['It is certain',
+                         'It is decidedly so',
+                         'Without a doubt',
+                         'Yes definitely',
+                         'You may rely on it',
+                         'As I see it, yes',
+                         'Most likely',
+                         'Outlook good',
+                         'Yes',
+                         'Signs point to yes',
+                         'Reply hazy try again',
+                         'Ask again later',
+                         'Better not tell you now',
+                         'Cannot predict now',
+                         'Concentrate and ask again',
+                         'Don\'t count on it',
+                         'My reply is no',
+                         'My sources say no',
+                         'Outlook not so good',
+                         'Very doubtful']
+
+        response = '[**8Ball**] :crystal_ball: {0} {1}'.format(
+            random.choice(response_list), random.choice(response_emoji_list))
+
+        yield from self.bot.say(response)
+
+def setup(bot):
+    bot.add_cog(Fun(bot))
