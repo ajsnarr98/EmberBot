@@ -1,10 +1,14 @@
 import asyncio
+import datetime
 import logging
 import random
 import requests
+import time
 
 import discord
 from discord.ext import commands
+
+from .core import AutoResponse, auto_response
 
 class Fun():
     """ Filled with fun commands for the bot. """
@@ -77,6 +81,36 @@ class Fun():
         if chuckPull and chuckPull.status_code  == 200:
             joke = chuckPull.json()['value']['joke']
             yield from self.bot.say(joke_msg.format(joke=joke))
+
+    @auto_response()
+    @asyncio.coroutine
+    def auto_pong(self, bot, message):
+        """ Says 'pong' when someone says 'ping' in the chat. """
+        if message.content.lower() == 'ping':
+            yield from bot.send_message(message.channel, 'pong')
+
+    @commands.command(pass_context=True)
+    @asyncio.coroutine
+    def ping(self, ctx):
+        """ Reply with a pong! Used to test response time. """
+        response = ':ping_pong: Pong: {response_desc}'
+
+        epoch = datetime.datetime.utcfromtimestamp(0)
+        time_of_message = (ctx.message.timestamp - epoch).total_seconds()
+        now = time.time()
+
+        response_sec = int((now - time_of_message))
+
+        response_desc = None
+        if response_sec <= 1:
+            response_desc = '< 1s'
+        else:
+            response_desc = '> {}s'.format(response_sec)
+
+        embed = discord.Embed(colour=discord.Colour.light_grey(),
+                              title=response.format(response_desc=response_desc))
+
+        yield from self.bot.send_message(ctx.message.channel, embed=embed)
 
 def setup(bot):
     bot.add_cog(Fun(bot))

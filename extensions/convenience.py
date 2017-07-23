@@ -12,13 +12,13 @@ class Convenience(object):
     def help_incorrect(self, bot, message):
         """ For when someone types 'help' without the command prefix. """
         if message.content.lower() == 'help':
-            fmt = 'Did you mean \"{0}help\" ?'
+            response = 'Did you mean \"{0}help\" ?'
             
             prefix = bot.default_command_prefix
 
             yield from bot.send_message(
                 message.channel,
-                fmt.format(prefix))
+                response.format(prefix))
 
     @auto_response()
     @asyncio.coroutine
