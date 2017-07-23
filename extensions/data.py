@@ -54,7 +54,8 @@ class DataManager(object):
             path = os.path.join(json_dir, filename)
             with open(path, 'r') as f:
                 return json.load(f)
-        except (FileNotFoundError, EOFError, json.decoder.JSONDecodeError):
+        except (FileNotFoundError, EOFError, ValueError): # will be json.decoder.JSONDecodeError
+        #                                                   instead of ValueError in python 3.6 (instead of 3.4)
             return None
 
     def walk_json(self):
