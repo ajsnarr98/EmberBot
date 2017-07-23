@@ -11,6 +11,14 @@ data_dir = os.path.join(project_dir, data_dir)
 json_dir = os.path.join(data_dir, json_dir)
 pickle_dir = os.path.join(data_dir, pickle_dir)
 
+# create dirs if they do not exist
+if not os.path.exists(data_dir):
+    os.makedirs(data_dir)
+if not os.path.exists(json_dir):
+    os.makedirs(json_dir)
+if not os.path.exists(pickle_dir):
+    os.makedirs(pickle_dir)
+
 class DataManager(object):
     
     def __init__(self):
