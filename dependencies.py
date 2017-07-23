@@ -13,8 +13,7 @@ def install():
     if dependencies:
         for package in dependencies:
             try:
-                pip_args = [s.strip() for arg in package.split(',')]
-                pip.main(['install', *pip_args])
+                pip.main(['install', package])
             except:
                 pass
 
