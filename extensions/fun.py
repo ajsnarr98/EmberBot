@@ -67,7 +67,7 @@ class Fun():
 
         yield from self.bot.say(response)
 
-    @commands.command(alliases=['chuck'])
+    @commands.command(aliases=['chuck'])
     @asyncio.coroutine
     def chucknorris(self):
         """ Want to know some interesting Chuck Norris facts? """
