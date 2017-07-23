@@ -6,6 +6,7 @@ import asyncio
 import inspect
 import logging
 import os
+import random
 import sys
 import time
 import traceback
@@ -45,13 +46,48 @@ class DiscordBot(commands.Bot):
         print('------')
 
         yield from self.say_in_all('''I'm back and better than ever!''')
-
-        yield from self.change_presence(
-            game=discord.Game(name='{}help for commands.'.format(self.default_command_prefix)))
         
         self.load_extension('extensions.core')
         self.load_extension('extensions.convenience')
         self.load_extension('extensions.fun')
+
+    @asyncio.coroutine
+    def auto_change_status(self):
+        """ A background task that randomly changes the bot's status,
+            or 'presence,' every so often.
+        """
+        statuses_filename = 'game_statuses.json'
+        default_seconds_between_changes = 1200
+
+        yield from self.wait_until_ready()
+
+        while not self.is_closed:
+            potential_games = self.data_man.load_json(statuses_filename)
+            if not potential_games:
+                # create defaults
+                potential_games = {'description' : 'Used for picking a game for bot to play',
+                                   'seconds_between_changes' : default_seconds_between_changes,
+                                   'games' : [
+                                       'Grand Theft Auto V',
+                                       'Wolfenstein'
+                                       'Sid Meier\'s Civilization VI',
+                                       'Dark Souls',
+                                       'Bioshock',
+                                       'Anime Seduction',
+                                       'Mario Kart',
+                                       'A game of chess',
+                                       'with our existence.',
+                                       'with our existence.',
+                                       'with our existence.',
+                                       'with our existence.',
+                                       'Holocaust: A tale of heroes']}
+                self.data_man.save_json(potential_games, statuses_filename)
+            seconds_between_changes = potential_games.get('seconds_between_changes',
+                                                          default_seconds_between_changes)
+
+            yield from self.change_presence(
+                game=discord.Game(name=random.choice(potential_games.get('games', []))))
+            yield from asyncio.sleep(seconds_between_changes) # task runs every x seconds
 
     def add_auto_response(self, auto_response):
         """Adds a :class:`extensions.core.AutoResponse` into the internal list
@@ -200,4 +236,5 @@ default_command_prefix = ':'
 if __name__ == '__main__':
     description = ''' A bot to fulfill your wildest dreams. '''
     bot = DiscordBot(get_command_prefix, description=description, pm_help=False, default_command_prefix=default_command_prefix)
+    bot.loop.create_task(bot.auto_change_status())
     bot.run(secret.botToken)
