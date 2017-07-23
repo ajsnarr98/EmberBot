@@ -19,9 +19,12 @@ import secret
 import self_updater
 
 # set up logger
+log_filename = 'discord.log'
+working_dir = os.path.dirname(os.path.abspath(__file__))
+log_filename = os.path.join(working_dir, log_filename)
 logger = logging.getLogger('discord')
 logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler = logging.FileHandler(filename=log_filename, encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
