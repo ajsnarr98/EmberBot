@@ -227,11 +227,11 @@ class DiscordBot(commands.Bot):
 
 def get_command_prefix(bot, message):
     """ Returns list of command prefixes, plus a prefix for when a message mentions the bot. """
-    prefixes = [':']
+    prefixes = ['.']
     prefix_list = commands.when_mentioned_or(*prefixes)(bot, message)
     return prefix_list
 
-default_command_prefix = ':'
+default_command_prefix = '.'
 
 if __name__ == '__main__':
     description = ''' A bot to fulfill your wildest dreams. '''
