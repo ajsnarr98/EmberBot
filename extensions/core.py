@@ -68,10 +68,14 @@ class Core():
         for dirpath, dirnames, filenames in self.data_man.walk_json():
             for filename in filenames:
                 no_ext = filename.split('.')[0] # remove filename extension
-                yield from self.bot.say(no_ext)
+                paginator.add_line(line='-- \'{0}\''.format(no_ext))
+        
+        pages = paginator.pages
+        for p in pages:
+            yield from self.bot.say(p)
 
     @settings.command(pass_context=True, name='edit')
-    @check_is_admin()
+    #@check_is_admin()
     @asyncio.coroutine
     def _edit(self, ctx, setting : str):
         """ Use 'settings edit <setting>'.
@@ -82,7 +86,92 @@ class Core():
             WARNING: Only people who the bot recognises as 'admins'
                      can use this command.
         """
-        pass
+        normal_rsp_timeout_sec = 40
+        edit_timeout_sec = 120
+
+        filename = setting + '.json'
+        setting_obj = self.data_man.load_json(filename)
+        if not setting_obj:
+            yield from self.bot.say('No setting called \'{0}\' found. Please use \'settings list\'.'.format(setting))
+        else:
+            setting_json = json.dumps(setting_obj, indent=2)
+            rsp_channel = None
+            if ctx.message.channel.is_private:
+                channel = ctx.message.channel
+            else:
+                channel = ctx.message.author
+            
+            paginator = commands.Paginator()
+            paginator.add_line(filename)
+            paginator.close_page()
+            paginator.add_line(setting_json)
+            for p in paginator.pages:
+                yield from self.bot.send_message(channel, p)
+
+            done_waiting_for_rsp = False
+            yield from self.bot.send_message(channel, 'Is this the file you want to edit? [Y/N]?')
+            while not done_waiting_for_rsp:
+                message = yield from self.bot.wait_for_message(timeout=normal_rsp_timeout_sec,
+                                                               channel=channel)
+                if not message:
+                    yield from self.bot.send_message(channel,
+                        'You have taken too long to respond, please re-enter initial command.')
+                    done_waiting_for_rsp = True
+                    return
+                elif message.author != self.bot.user:
+                    if message.content.lower().startswith('y'):
+                        yield from self.bot.send_message(channel,
+                        'Ok! Please send an edited version of the above file to change settings :smiley:.' +
+                        ' Make sure the format is valid!')
+                        done_waiting_for_rsp = True
+                    elif message.content.lower().startswith('n'):
+                        yield from self.bot.send_message(channel,
+                        'Ok. If you meant another file, go ahead and just re-enter the command. Exiting command now')
+                        done_waiting_for_rsp = True
+                        return
+                    else:
+                        yield from self.bot.send_message(channel,
+                        'Sorry, I couldn\'t read that. Please enter either \'y\' or \'n\'. :smiley:')
+                del message
+            del done_waiting_for_rsp
+
+            done_waiting_for_rsp = False
+            while not done_waiting_for_rsp:
+                message = yield from self.bot.wait_for_message(timeout=edit_timeout_sec,
+                                                               channel=channel)
+                if not message:
+                    yield from self.bot.send_message(channel,
+                        'You have taken too long to respond, please re-enter initial command...')
+                    done_waiting_for_rsp = True
+                    return
+                elif message.author != self.bot.user:
+                    if message.content.lower() == 'exit':
+                        yield from self.bot.send_message(channel,
+                            'Canceling command...')
+                        done_waiting_for_rsp = True
+                        return
+                    else:
+                        json_obj = None
+                        try:
+                            json_obj = json.loads(message.content)
+                        except json.decoder.JSONDecodeError:
+                            yield from self.bot.send_message(channel,
+                                'I\'m sorry I couldn\'t read that! If it helps,' +
+                                ' the text needs to be in valid JSON format. Try re-entering' +
+                                ' the text, or type \'exit\' or just do nothing for a bit if you want to stop.')
+                            del message
+                            continue
+                        if json_obj:
+                            self.bot.data_man.save_json(json_obj, filename)
+                            yield from self.bot.send_message(channel,
+                                'Settings have been updated! Exiting command now...')
+                            yield from self.bot.send_message(channel,
+                                ' :warning: I will warn you though... If something breaks pretty soon,' +
+                                ' you might want to check back here and see if you changed' + 
+                                ' everything correctly...')
+                            done_waiting_for_rsp = True
+                del message
+            del done_waiting_for_rsp
 
 def setup(bot):
     """ Allows this module to be added as an 'extension' to the bot. """
@@ -134,7 +223,7 @@ class AutoResponse(object):
         self.description = description
         self.no_pm = attrs.get('no_pm', False)
 
-        self._data_man = DataManager()
+        self.data_man = DataManager()
 
         self.try_to_enable(attrs.get('default_enabled', True))
 
@@ -142,18 +231,17 @@ class AutoResponse(object):
         """ Enables or disables this AutoResponse, and updates the setting in
             the AutoResponse.saveFile data file.
         """
-
         auto_rsp_json = self.data_man.load_json(AutoResponse.saveFile)
-        if not auto_rsp_json:
+        if not auto_rsp_json or auto_rsp_json == '':
             self._enabled = default_enabled
-            auto_rsp_json = {self.name : self.json}
+            auto_rsp_json = {self.name : self.json_dict}
         else:
             this_json = auto_rsp_json.get(self.name, None)
             if this_json:
                 self._enabled = this_json.get('enabled', default_enabled)
-                auto_rsp_json[self.name] = self.json
+                auto_rsp_json[self.name] = self.json_dict
             else:
-                auto_rsp_json[self.name] = self.json
+                auto_rsp_json[self.name] = self.json_dict
         self.data_man.save_json(auto_rsp_json, AutoResponse.saveFile)
 
     @property
@@ -166,10 +254,14 @@ class AutoResponse(object):
 
     @property
     def json(self):
+        return json.dumps(self.simple_dict)
+
+    @property
+    def json_dict(self):
         simple_dict = {'name' : self.name,
                        'enabled' : self.enabled,
                        'description' : self.description}
-        return json.dumps(simple_dict)
+        return simple_dict
 
 
 def auto_response(**attrs):

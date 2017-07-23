@@ -36,20 +36,20 @@ class DataManager(object):
     def save_json(self, obj, filename):
         """ Saves the given object in data/filename, in json format. """
         path = os.path.join(json_dir, filename)
-        with open(path, 'wb+') as f:
-            json.dump(obj, f)
+        with open(path, 'w+') as f:
+            json.dump(obj, f, indent=2)
 
 
     def load_json(self, filename):
         """ Loads the json-encoded object from data/filename. """
         try:
             path = os.path.join(json_dir, filename)
-            with open(path, 'rb') as f:
+            with open(path, 'r') as f:
                 return json.load(f)
-        except (FileNotFoundError, EOFError):
+        except (FileNotFoundError, EOFError, json.decoder.JSONDecodeError):
             return None
 
-    def walk_json(self, ):
+    def walk_json(self):
         """ Equivalent to os.walk(json_dir). """
         for dirpath, dirnames, filenames in os.walk(json_dir):
             yield (dirpath, dirnames, filenames)

@@ -5,7 +5,8 @@ accounts.py
 # System-Specific Files
 *.bat
 *.log
-data/*
+data/json/*
+data/pickled/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -15,7 +15,6 @@ from discord.ext import commands
 
 from extensions.core import AutoResponse
 from extensions.data import DataManager
-import message_parser
 import secret
 import self_updater
 
@@ -31,9 +30,9 @@ class DiscordBot(commands.Bot):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.default_command_prefix = kwargs.get('default_command_prefix', None)
         self.auto_responses = []
         self.data_man = DataManager()
-        self.parser = message_parser.MessageParser(self, logger)
 
     @asyncio.coroutine
     def on_ready(self):
@@ -44,8 +43,11 @@ class DiscordBot(commands.Bot):
 
         yield from self.say_in_all('''I'm back and better than ever!''')
 
-        yield from self.change_presence(game=discord.Game(name=':help for commands.'))
+        yield from self.change_presence(
+            game=discord.Game(name='{}help for commands.'.format(self.default_command_prefix)))
+        
         self.load_extension('extensions.core')
+        self.load_extension('extensions.convenience')
 
     def add_auto_response(self, auto_response):
         """Adds a :class:`extensions.core.AutoResponse` into the internal list
@@ -70,7 +72,7 @@ class DiscordBot(commands.Bot):
         if auto_response.name in self.auto_responses:
             raise discord.ClientException('AutoResponse {0.name} is already registered.'.format(auto_response))
 
-        self.auto_responses = auto_response
+        self.auto_responses.append(auto_response)
 
     def add_cog(self, cog):
         super().add_cog(cog)
@@ -109,7 +111,7 @@ class DiscordBot(commands.Bot):
             this_json = auto_rsp_json.get(auto_response.name, None)
             if this_json:
                 if this_json.get('enabled', False):
-                    yield from auto_response.callback(self, message)
+                    yield from auto_response.callback(self, self, message)
 
     @asyncio.coroutine
     def on_message(self, message):
@@ -155,12 +157,14 @@ class DiscordBot(commands.Bot):
                 self._restart()
 
 def get_command_prefix(bot, message):
-    """ Returns list of command prefixes, plus a prefix for when a message mentions the bot """
+    """ Returns list of command prefixes, plus a prefix for when a message mentions the bot. """
     prefixes = [':']
     prefix_list = commands.when_mentioned_or(*prefixes)(bot, message)
     return prefix_list
 
+default_command_prefix = ':'
+
 if __name__ == '__main__':
     description = ''' A bot to fulfill your wildest dreams. '''
-    bot = DiscordBot(get_command_prefix, description=description, pm_help=False)
+    bot = DiscordBot(get_command_prefix, description=description, pm_help=False, default_command_prefix=default_command_prefix)
     bot.run(secret.botToken)
