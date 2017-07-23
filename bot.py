@@ -111,12 +111,13 @@ class DiscordBot(commands.Bot):
         """ This function sorts through all auto-responses that have been
             registered, and runs all that are enabled.
         """
-        auto_rsp_json = self.data_man.load_json(AutoResponse.saveFile)
-        for auto_response in self.auto_responses:
-            this_json = auto_rsp_json.get(auto_response.name, None)
-            if this_json:
-                if this_json.get('enabled', False):
-                    yield from auto_response.callback(self, self, message)
+        if message.author != self.user: # make sure bot didn't say it
+            auto_rsp_json = self.data_man.load_json(AutoResponse.saveFile)
+            for auto_response in self.auto_responses:
+                this_json = auto_rsp_json.get(auto_response.name, None)
+                if this_json:
+                    if this_json.get('enabled', False):
+                        yield from auto_response.callback(self, self, message)
 
     @asyncio.coroutine
     def on_message(self, message):
