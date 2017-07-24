@@ -69,7 +69,7 @@ class DiscordBot(commands.Bot):
                                    'seconds_between_changes' : default_seconds_between_changes,
                                    'games' : [
                                        'Grand Theft Auto V',
-                                       'Wolfenstein'
+                                       'Wolfenstein',
                                        'Sid Meier\'s Civilization VI',
                                        'Dark Souls',
                                        'Bioshock',

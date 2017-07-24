@@ -154,7 +154,8 @@ class Core():
                         json_obj = None
                         try:
                             json_obj = json.loads(message.content)
-                        except json.decoder.JSONDecodeError:
+                        except ValueError: # will be json.decoder.JSONDecodeError
+                            #                instead of ValueError in python 3.6 (instead of 3.4)
                             yield from self.bot.send_message(channel,
                                 'I\'m sorry I couldn\'t read that! If it helps,' +
                                 ' the text needs to be in valid JSON format. Try re-entering' +
