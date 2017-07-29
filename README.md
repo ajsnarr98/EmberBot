@@ -15,5 +15,4 @@ Clone this repository
 1. Install libopus
    1. on debian-based systems for example: `$ sudo apt install libopus-0`
 1. Run `git clone https://github.com/ajsnarr98/EmberBot` in the place you want the folder to be
-1. Run bot.py
-   `$ sudo python3 bot.py`
+1. Run bot.py (may need to use sudo depending on where it is installed)
