@@ -9,7 +9,6 @@ Emberbot is a Discord bot written in python. Requires Python 3.4+ and Git 1.7+.
 1. Run bot.py
 
 ### Linux
-Clone this repository
 1. Ensure you have git
 1. Ensure you have python 3.4 or greater
 1. Install libopus
