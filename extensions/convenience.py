@@ -1,5 +1,8 @@
 import asyncio
 
+import discord
+from discord.ext import commands
+
 from .core import AutoResponse, auto_response
 
 class Convenience(object):
@@ -72,6 +75,114 @@ class Convenience(object):
                                 ]
                             }
             bot.data_man.save_json(accounts_info, accounts_filename)
+
+    @commands.command(pass_context=True, hidden=True)
+    @asyncio.coroutine
+    def say(self, ctx):
+        """ Makes the bot say something in a chosen channel.
+            Usage: 'say <text>' or just 'say' if you want to give multiple
+            messages in succession.
+        """
+        normal_rsp_timeout_sec = 40
+        speaking_timeout_sec = 90
+
+        server_list = [s for s in self.bot.servers]
+
+        if len(server_list) == 0:
+            yield from self.bot.say('I am not a member of any servers.')
+            return
+
+        # Find out what server to say in
+        yield from self.bot.send_message(ctx.message.channel, 'Servers')
+        yield from self.bot.send_message(ctx.message.channel, '-------')
+        i = 1
+        while i < len(server_list) + 1:
+            yield from self.bot.send_message(ctx.message.channel,
+                '{num}. {server}'.format(num=i, server=server_list[i-1].name))
+            i += 1
+        yield from self.bot.send_message(ctx.message.channel, '-------')
+
+        server = None
+        while not server:
+            yield from self.bot.send_message(ctx.message.channel,
+                'Please enter in a number for the server you want')
+            message = yield from self.bot.wait_for_message(timeout=normal_rsp_timeout_sec,
+                                                           channel=ctx.message.channel,
+                                                           author=ctx.message.author)
+            if not message:
+                yield from self.bot.send_message(ctx.message.channel,
+                    'You have taken too long to respond, please re-enter initial command.')
+                return
+            else:
+                try:
+                    num = int(message.content)
+                    server = server_list[num-1]
+                    del num
+                except Exception:
+                    yield from self.bot.send_message(ctx.message.channel,
+                        'Invalid number, please try again.')
+
+        # Find out what channel to say in
+        channel_list = []
+        for c in server.channels:
+            if c.type != discord.ChannelType.voice:
+                channel_list.append(c)
+
+        yield from self.bot.send_message(ctx.message.channel, 'Channels')
+        yield from self.bot.send_message(ctx.message.channel, '-------')
+        i = 1
+        while i < len(channel_list) + 1:
+            yield from self.bot.send_message(ctx.message.channel,
+                '{num}. {channel}'.format(num=i, channel=channel_list[i-1].name))
+            i += 1
+        yield from self.bot.send_message(ctx.message.channel, '-------')
+
+        channel = None
+        while not channel:
+            yield from self.bot.send_message(ctx.message.channel,
+                'Please enter in a number for the channel you want')
+            message = yield from self.bot.wait_for_message(timeout=normal_rsp_timeout_sec,
+                                                           channel=ctx.message.channel,
+                                                           author=ctx.message.author)
+            if not message:
+                yield from self.bot.send_message(ctx.message.channel,
+                    'You have taken too long to respond, please re-enter initial command.')
+                return
+            else:
+                try:
+                    num = int(message.content)
+                    channel = channel_list[num-1]
+                    del num
+                except Exception:
+                    yield from self.bot.send_message(ctx.message.channel,
+                    'Invalid number, please try again.')
+
+        # Say message(s)
+        message = ctx.message.content[(len(ctx.prefix) + len(ctx.invoked_with)):]
+        if message != '':
+            yield from self.bot.send_message(channel, message)
+        else:
+            # Say messages as they are provided by the user
+            begin_message = ('You may now type messages as much as you want,'
+                ' and I will say them in the chosen channel. To stop,'
+                ' simply wait {sec} seconds without doing anything, or type'
+                ' \"exitcommand\" and I will stop mimicking what you say.')
+            yield from self.bot.send_message(ctx.message.channel,
+                begin_message.format(sec=speaking_timeout_sec))
+
+            done_sending = False
+            while not done_sending:
+                message = yield from self.bot.wait_for_message(
+                    timeout=speaking_timeout_sec,
+                    channel=ctx.message.channel,
+                    author=ctx.message.author)
+
+                if not message or message.content.strip().lower() == 'exitcommand':
+                    done_sending = True
+                else:
+                    yield from self.bot.send_message(channel, message.content)
+            yield from self.bot.send_message(ctx.message.channel,
+                'exiting command...')
 
 
 def setup(bot):
