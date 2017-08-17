@@ -36,12 +36,16 @@ class Convenience(object):
         output = ''
 
         accounts_info = bot.data_man.load_json(accounts_filename)
+        member_ids = [m.id for m in message.mentions]
 
         if accounts_info:
-            for member in message.mentions:
-                if accounts_info.get(member.id, None): # if member id in dict
-                    for account_id in accounts_info.get(member.id, None):
-                        output += mention_str.format(id=account_id) + ' '
+            for member_id in member_ids:
+                associated_accounts = accounts_info.get(member_id, None)
+                if associated_accounts: # if member id in dict
+                    for account_id in associated_accounts:
+                        # only mention associated accounts that have not been mentioned already
+                        if account_id not in member_ids:
+                            output += mention_str.format(id=account_id) + ' '
 
             if output != '':
                 yield from bot.send_message(
