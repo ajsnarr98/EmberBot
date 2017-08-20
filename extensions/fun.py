@@ -20,7 +20,7 @@ class Fun():
 
     @commands.command(name='8ball')
     @asyncio.coroutine
-    def eight_ball(self, message : str):
+    def eight_ball(self, *, message : str):
         """ Usage: '8ball <question>'
 
             Gives a random 8ball response to the provided question.
@@ -66,8 +66,20 @@ class Fun():
 
             self.data_man.save_json(responses, eight_ball_filename)
 
-        response = '[**8Ball**] :crystal_ball: {0} {1}'.format(
-            random.choice(response_list), random.choice(response_emoji_list))
+        easter_egg = 0
+
+        # easter egg 1 check
+        temp_msg = message.lower()
+        temp_msg = temp_msg.replace(',', '')
+        if 'answer' in temp_msg and 'life the universe and everything' in temp_msg:
+            easter_egg = 1
+
+        # give either easter egg or random response
+        if easter_egg == 1:
+            response = '[**8Ball**] 42  :rocket:'
+        else:
+            response = '[**8Ball**] :crystal_ball: {0} {1}'.format(
+                random.choice(response_list), random.choice(response_emoji_list))
 
         yield from self.bot.say(response)
 
