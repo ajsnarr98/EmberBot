@@ -8,6 +8,6 @@ A fun and convenience bot account for Discord chat client.
 
 __title__ = 'emberbot'
 __author__ = 'ajsnarr98'
-__version__ = '0.2'
+__version__ = '1.0'
 
 from .bot import DiscordBot
