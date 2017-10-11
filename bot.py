@@ -44,8 +44,6 @@ class DiscordBot(commands.Bot):
         print('Username: ' + self.user.name)
         print('ID: ' + self.user.id)
         print('------')
-
-        yield from self.say_in_all('''I'm back and better than ever!''')
         
         self.load_extension('extensions.core')
         self.load_extension('extensions.convenience')
